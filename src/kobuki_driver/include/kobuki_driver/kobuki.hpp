@@ -129,14 +129,12 @@ public:
   /* Be sure to lock/unlock the data access (lockDataAccess and unlockDataAccess)
    * around any getXXX calls - see the doxygen notes for lockDataAccess. */
   CoreSensors::Data getCoreSensorData() const { return core_sensors.data; }
-  DockIR::Data getDockIRData() const { return dock_ir.data; }
   Cliff::Data getCliffData() const { return cliff.data; }
   Current::Data getCurrentData() const { return current.data; }
   Inertia::Data getInertiaData() const { return inertia.data; }
   GpInput::Data getGpInputData() const { return gp_input.data; }
   ThreeAxisGyro::Data getRawInertiaData() const { return three_axis_gyro.data; }
   Ultrasonic::Data getUltrasonicData() const { return ultrasonic.data; }
-  ControllerInfo::Data getControllerInfoData() const { return controller_info.data; }
 
   /*********************
   ** Feedback
@@ -160,9 +158,6 @@ public:
   void setDigitalOutput(const DigitalOutput &digital_output);
   void setExternalPower(const DigitalOutput &digital_output);
   void playSoundSequence(const enum SoundSequences &number);
-  bool setControllerGain(const unsigned char &type, const unsigned int &p_gain,
-                         const unsigned int &i_gain, const unsigned int &d_gain);
-  bool getControllerGain();
 
   /*********************
   ** Debugging
@@ -204,7 +199,6 @@ private:
   CoreSensors core_sensors;
   Ultrasonic ultrasonic;
   Inertia inertia;
-  DockIR dock_ir;
   Cliff cliff;
   Current current;
   GpInput gp_input;
@@ -212,7 +206,6 @@ private:
   Firmware firmware; // requestable
   UniqueDeviceID unique_device_id; // requestable
   ThreeAxisGyro three_axis_gyro;
-  ControllerInfo controller_info; // requestable
 
   ecl::Serial serial;
   PacketFinder packet_finder;
@@ -220,7 +213,6 @@ private:
   bool is_alive; // used as a flag set by the data stream watchdog
 
   int version_info_reminder;
-  int controller_info_reminder;
 
   /*********************
   ** Commands
@@ -257,7 +249,7 @@ private:
   /*********************
   ** Signals
   **********************/
-  ecl::Signal<> sig_stream_data, sig_controller_info;
+  ecl::Signal<> sig_stream_data;
   ecl::Signal<const VersionInfo&> sig_version_info;
   ecl::Signal<const std::string&> sig_debug, sig_info, sig_warn, sig_error;
   ecl::Signal<const std::vector<std::string>&> sig_named;

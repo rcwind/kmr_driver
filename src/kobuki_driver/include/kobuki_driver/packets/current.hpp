@@ -41,16 +41,15 @@ class Current : public packet_handler::payloadBase
 public:
   Current() : packet_handler::payloadBase(false, 2) {};
   struct Data {
-    Data() : current(2) {}
-    std::vector<uint8_t> current;
+    Data() {}
+    int16_t current;
   } data;
 
   bool serialise(ecl::PushAndPop<unsigned char> & byteStream)
   {
     buildBytes(Header::Current, byteStream);
     buildBytes(length, byteStream);
-    buildBytes(data.current[0], byteStream);
-    buildBytes(data.current[1], byteStream);
+    buildBytes(data.current, byteStream);
     return true;
   }
 
@@ -68,8 +67,7 @@ public:
     if( header_id != Header::Current ) return false;
     if( length_packed != length ) return false;
 
-    buildVariable(data.current[0], byteStream);
-    buildVariable(data.current[1], byteStream);
+    buildVariable(data.current, byteStream);
 
     return constrain();
   }

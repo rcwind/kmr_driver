@@ -177,32 +177,9 @@ Command Command::SetDock(const unsigned char &dock)
 {
   Command outgoing;
   outgoing.data.type = dock;
-  outgoing.data.p_gain = 0;
-  outgoing.data.i_gain = 0;
-  outgoing.data.d_gain = 0;
-  outgoing.data.command = Command::SetController;
+  outgoing.data.command = Command::Dock;
   return outgoing;
 }
-Command Command::SetControllerGain(const unsigned char &type, const unsigned int &p_gain,
-                                   const unsigned int &i_gain, const unsigned int &d_gain)
-{
-  Command outgoing;
-  outgoing.data.type = type;
-  outgoing.data.p_gain = p_gain;
-  outgoing.data.i_gain = i_gain;
-  outgoing.data.d_gain = d_gain;
-  outgoing.data.command = Command::SetController;
-  return outgoing;
-}
-
-Command Command::GetControllerGain()
-{
-  Command outgoing;
-  outgoing.data.command = Command::GetController;
-  outgoing.data.reserved = 0;
-  return outgoing;
-}
-
 /*****************************************************************************
 ** Implementation [Serialisation]
 *****************************************************************************/
@@ -263,19 +240,6 @@ bool Command::serialise(ecl::PushAndPop<unsigned char> & byteStream)
       buildBytes(data.gp_out, byteStream);
       break;
     }
-    case SetController:
-      buildBytes(cmd, byteStream);
-      buildBytes(length=13, byteStream);
-      buildBytes(data.type, byteStream);
-      buildBytes(data.p_gain, byteStream);
-      buildBytes(data.i_gain, byteStream);
-      buildBytes(data.d_gain, byteStream);
-      break;
-    case GetController:
-      buildBytes(cmd, byteStream);
-      buildBytes(length=1, byteStream);
-      buildBytes(data.reserved, byteStream);
-      break;
     default:
       return false;
       break;

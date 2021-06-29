@@ -43,7 +43,7 @@ public:
   enum Name
   {
     BaseControl = 1, Sound = 3, SoundSequence = 4, RequestExtra = 9, ChangeFrame = 10, RequestEeprom = 11,
-    SetDigitalOut = 12, SetController = 13, GetController = 14
+    SetDigitalOut = 12, Dock = 13, 
   };
 
   enum VersionFlag

@@ -55,7 +55,6 @@ Kobuki::Kobuki() :
     , is_connected(false)
     , is_alive(false)
     , version_info_reminder(0)
-    , controller_info_reminder(0)
     , velocity_commands_debug(4, 0)
 {
 }
@@ -84,7 +83,6 @@ void Kobuki::init(Parameters &parameters) throw (ecl::StandardException)
 
   // connect signals
   sig_version_info.connect(sigslots_namespace + std::string("/version_info"));
-  sig_controller_info.connect(sigslots_namespace + std::string("/controller_info"));
   sig_stream_data.connect(sigslots_namespace + std::string("/stream_data"));
   sig_raw_data_command.connect(sigslots_namespace + std::string("/raw_data_command"));
   sig_raw_data_stream.connect(sigslots_namespace + std::string("/raw_data_stream"));
@@ -128,13 +126,6 @@ void Kobuki::init(Parameters &parameters) throw (ecl::StandardException)
    *******************************************/
   version_info_reminder = 10;
   sendCommand(Command::GetVersionInfo());
-
-  /******************************************
-   ** Get Controller Info Commands
-   *******************************************/
-  controller_info_reminder = 10;
-  sendCommand(Command::GetControllerGain());
-  //sig_controller_info.emit(); //emit default gain
 
   thread.start(&Kobuki::spin, *this);
 }
@@ -194,7 +185,6 @@ void Kobuki::spin()
         serial.block(4000); // blocks by default, but just to be clear!
         event_manager.update(is_connected, is_alive);
         version_info_reminder = 10;
-        controller_info_reminder = 10;
       }
       catch (const ecl::StandardException &e)
       {
@@ -224,7 +214,6 @@ void Kobuki::spin()
       {
         is_alive = false;
         version_info_reminder = 10;
-        controller_info_reminder = 10;
         sig_debug.emit("Timed out while waiting for incoming bytes.");
       }
       event_manager.update(is_connected, is_alive);
@@ -266,9 +255,6 @@ void Kobuki::spin()
           case Header::CoreSensors:
             if( !core_sensors.deserialise(data_buffer) ) { fixPayload(data_buffer); break; }
             event_manager.update(core_sensors.data, cliff.data.bottom);
-            break;
-          case Header::DockInfraRed:
-            if( !dock_ir.deserialise(data_buffer) ) { fixPayload(data_buffer); break; }
             break;
           case Header::Inertia:
             if( !inertia.deserialise(data_buffer) ) { fixPayload(data_buffer); break; }
@@ -343,11 +329,6 @@ void Kobuki::spin()
                                      + ". Firmware: " + VersionInfo::toString(firmware.data.version));
             version_info_reminder = 0;
             break;
-          case Header::ControllerInfo:
-            if( !controller_info.deserialise(data_buffer) ) { fixPayload(data_buffer); break; }
-            sig_controller_info.emit();
-            controller_info_reminder = 0;
-            break;
           default: // in the case of unknown or mal-formed sub-payload
             fixPayload(data_buffer);
             break;
@@ -362,7 +343,6 @@ void Kobuki::spin()
       sig_stream_data.emit();
       sendBaseControlCommand(); // send the command packet to mainboard;
       if( version_info_reminder/*--*/ > 0 ) sendCommand(Command::GetVersionInfo());
-      if( controller_info_reminder/*--*/ > 0 ) sendCommand(Command::GetControllerGain());
     }
     else
     {
@@ -494,34 +474,6 @@ void Kobuki::playSoundSequence(const enum SoundSequences &number)
 
 void Kobuki::setDock(const unsigned char &dock) {
   sendCommand(Command::SetDock(dock));
-}
-bool Kobuki::setControllerGain(const unsigned char &type, const unsigned int &p_gain,
-                               const unsigned int &i_gain, const unsigned int &d_gain)
-{
-  if ((firmware.flashed_major_version() < 2) && (firmware.flashed_minor_version() < 2)) {
-    sig_warn.emit("Robot firmware doesn't support this function, so you must upgrade it. " \
-                  "Consult how-to on: http://kobuki.yujinrobot.com/home-en/documentation/howtos/upgrading-firmware");
-    sig_warn.emit("Robot firmware version is " + VersionInfo::toString(firmware.data.version)
-                + "; latest version is " + firmware.current_version());
-    return false;
-  }
-
-  sendCommand(Command::SetControllerGain(type, p_gain, i_gain, d_gain));
-  return true;
-}
-
-bool Kobuki::getControllerGain()
-{
-  if ((firmware.flashed_major_version() < 2) && (firmware.flashed_minor_version() < 2)) {
-    sig_warn.emit("Robot firmware doesn't support this function, so you must upgrade it. " \
-                  "Consult how-to on: http://kobuki.yujinrobot.com/home-en/documentation/howtos/upgrading-firmware");
-    sig_warn.emit("Robot firmware version is " + VersionInfo::toString(firmware.data.version)
-                + "; latest version is " + firmware.current_version());
-    return false;
-  }
-
-  sendCommand(Command::GetControllerGain());
-  return true;
 }
 
 void Kobuki::setBaseControl(const double &linear_velocity, const double &angular_velocity)
