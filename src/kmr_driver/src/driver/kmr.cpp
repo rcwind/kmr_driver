@@ -461,7 +461,7 @@ void Kmr::getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle
  */
 void Kmr::updateOdometry(ecl::LegacyPose2D<double> &pose_update, ecl::linear_algebra::Vector3d &pose_update_rates)
 {
-  diff_drive.update(core_sensors.data.time_stamp, core_sensors.data.left_encoder, core_sensors.data.right_encoder,
+  diff_drive.update(core_sensors.data.time_stamp, core_sensors.data.left_encoder, core_sensors.data.right_encoder, core_sensors.data.steering,
                       pose_update, pose_update_rates);
 }
 
@@ -478,24 +478,20 @@ void Kmr::setDigitalOutput(const DigitalOutput &digital_output) {
   sendCommand(Command::SetDigitalOutput(digital_output, kmr_command.data));
 }
 
-
 void Kmr::setExternalPower(const DigitalOutput &digital_output) {
   sendCommand(Command::SetExternalPower(digital_output, kmr_command.data));
 }
 
-void Kmr::setMagTracker(const unsigned char &action)
-{
-  sendCommand(Command::SetMagTracker(action));
-}
+//void Kmr::playSound(const enum Sounds &number)
+//{
+//  sendCommand(Command::PlaySound(number, kmr_command.data));
+//}
 
 void Kmr::playSoundSequence(const enum SoundSequences &number)
 {
   sendCommand(Command::PlaySoundSequence(number, kmr_command.data));
 }
 
-void Kmr::setDock(const unsigned char &dock) {
-  sendCommand(Command::SetDock(dock));
-}
 bool Kmr::setControllerGain(const unsigned char &type, const unsigned int &p_gain,
                                const unsigned int &i_gain, const unsigned int &d_gain)
 {
