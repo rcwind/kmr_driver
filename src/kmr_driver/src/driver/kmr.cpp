@@ -51,7 +51,9 @@ bool PacketFinder::checkSum()
 Kmr::Kmr() :
     shutdown_requested(false)
     , is_enabled(false)
-    , heading_offset(0.0/0.0)
+    , heading_offset(0.0)
+    , delta_heading(0.0)
+    , pre_heading(0.0)
     , is_connected(false)
     , is_alive(false)
     , version_info_reminder(0)
@@ -461,8 +463,17 @@ void Kmr::getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle
  */
 void Kmr::updateOdometry(ecl::LegacyPose2D<double> &pose_update, ecl::linear_algebra::Vector3d &pose_update_rates)
 {
-  diff_drive.update(core_sensors.data.time_stamp, core_sensors.data.left_encoder, core_sensors.data.right_encoder, core_sensors.data.steering,
-                      pose_update, pose_update_rates);
+    ecl::Angle<double> heading = getHeading();
+    delta_heading = ecl::wrap_angle(heading - pre_heading);
+
+    diff_drive.update(core_sensors.data.time_stamp, 
+            core_sensors.data.left_encoder, core_sensors.data.right_encoder, 
+            core_sensors.data.left_steering, core_sensors.data.right_steering,
+            heading,
+            delta_heading,
+            pose_update, pose_update_rates);
+
+    pre_heading = heading;
 }
 
 /*****************************************************************************
@@ -521,9 +532,9 @@ bool Kmr::getControllerGain()
   return true;
 }
 
-void Kmr::setBaseControl(const double &linear_velocity, const double &angular_velocity)
+void Kmr::setBaseControl(const double &linear_velocity, const double &angular_velocity, const double &yaw)
 {
-  diff_drive.setVelocityCommands(linear_velocity, angular_velocity);
+  diff_drive.setVelocityCommands(linear_velocity, angular_velocity, yaw);
 }
 
 void Kmr::sendBaseControlCommand()
@@ -537,7 +548,7 @@ void Kmr::sendBaseControlCommand()
   diff_drive.velocityCommands(velocity_commands_received);
   std::vector<short> velocity_commands = diff_drive.velocityCommands();
   // std::cout << "speed: " << velocity_commands[0] << ", radius: " << velocity_commands[1] << std::endl;
-  sendCommand(Command::SetVelocityControl(velocity_commands[0], velocity_commands[1]));
+  sendCommand(Command::SetVelocityControl(velocity_commands[0], velocity_commands[1], velocity_commands[2]));
 
   //experimental; send raw control command and received command velocity
   velocity_commands_debug=velocity_commands;
@@ -594,7 +605,7 @@ bool Kmr::enable()
 
 bool Kmr::disable()
 {
-  setBaseControl(0.0f, 0.0f);
+  setBaseControl(0.0f, 0.0f, 0.0f);
   sendBaseControlCommand();
   is_enabled = false;
   return true;

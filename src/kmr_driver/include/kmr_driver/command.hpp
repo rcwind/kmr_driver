@@ -66,7 +66,7 @@ public:
   struct Data
   {
     Data()
-      : command(BaseControl), speed(0), radius(0), request_flags(0), gp_out(0x00f0) // set all the power pins high, others low.
+      : command(BaseControl), speed(0), radius(0), angle(0), request_flags(0), gp_out(0x00f0) // set all the power pins high, others low.
       , type(0), p_gain(1000), i_gain(1000), d_gain(1000)
     {
     }
@@ -76,6 +76,7 @@ public:
     // BaseControl
     int16_t speed;
     int16_t radius;
+    int16_t angle;// 0.01degree
 
     // Sound - not yet implemented
     uint16_t note;
@@ -116,7 +117,7 @@ public:
   static Command PlaySoundSequence(const enum SoundSequences &number, Command::Data &current_data);
   static Command GetVersionInfo();
   static Command SetVelocityControl(DiffDrive& diff_drive);
-  static Command SetVelocityControl(const int16_t &speed, const int16_t &radius);
+  static Command SetVelocityControl(const int16_t &speed, const int16_t &radius, const int16_t &angle);
   static Command SetControllerGain(const unsigned char &type,
                                    const unsigned int &p_gain,
                                    const unsigned int &i_gain,

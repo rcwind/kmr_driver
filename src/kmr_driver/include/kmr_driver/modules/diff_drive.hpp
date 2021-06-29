@@ -42,23 +42,26 @@ public:
   void update(const uint16_t &time_stamp,
               const uint16_t &left_encoder,
               const uint16_t &right_encoder,
-              const int32_t &steering,
+              const int16_t &left_steering,
+              const int16_t &right_steering,
+              const double &heading,
+              const double &delta_heading,
               ecl::LegacyPose2D<double> &pose_update,
               ecl::linear_algebra::Vector3d &pose_update_rates);
   void reset();
   void getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle_rate,
                            double &wheel_right_angle, double &wheel_right_angle_rate);
-  void setVelocityCommands(const double &vx, const double &wz);
-  void velocityCommands(const double &vx, const double &wz);
-  void velocityCommands(const short &cmd_speed, const short &cmd_radius);
-  void velocityCommands(const std::vector<double> &cmd) { velocityCommands(cmd[0], cmd[1]); }
-  void velocityCommands(const std::vector<short>  &cmd) { velocityCommands(cmd[0], cmd[1]); }
+  void setVelocityCommands(const double &vx, const double &wz, const double &yaw);
+  void velocityCommands(const double &vx, const double &wz, const double &yaw);
+  void velocityCommands(const short &cmd_speed, const short &cmd_radius, const short &cmd_angle);
+  void velocityCommands(const std::vector<double> &cmd) { velocityCommands(cmd[0], cmd[1], cmd[2]); }
+  void velocityCommands(const std::vector<short>  &cmd) { velocityCommands(cmd[0], cmd[1], cmd[2]); }
 
   /*********************
   ** Command Accessors
   **********************/
-  std::vector<short> velocityCommands(); // (speed, radius), in [mm/s] and [mm]
-  std::vector<double> pointVelocity() const; // (vx, wz), in [m/s] and [rad/s]
+  std::vector<short> velocityCommands(); // (speed, radius, angle), in [mm/s] and [mm] [0.01degree]
+  std::vector<double> pointVelocity() const; // (vx, wz), in [m/s] and [rad/s] [rad]
 
   /*********************
   ** Property Accessors
@@ -74,12 +77,13 @@ private:
   double last_rad_left, last_rad_right;
 
   //double v, w; // in [m/s] and [rad/s]
-  std::vector<double> point_velocity; // (vx, wz), in [m/s] and [rad/s]
+  std::vector<double> point_velocity; // (vx, wz), in [m/s] and [rad/s] [rad]
   double radius; // in [mm]
   double speed;  // in [mm/s]
+  double angle; // 0.01degree
   double bias; //wheelbase, wheel_to_wheel, in [m]
+  double lng; //wheelbase, wheel_to_wheel, in [m]
   double wheel_radius; // in [m]
-  double heading;
   int imu_heading_offset;
   const double tick_to_rad;
 
