@@ -70,7 +70,7 @@ Kobuki::~Kobuki()
   sig_debug.emit("Device: kobuki driver terminated.");
 }
 
-void Kobuki::init(Parameters &parameters) throw (ecl::StandardException)
+void Kobuki::init(Parameters &parameters)
 {
 
   if (!parameters.validate())
@@ -286,31 +286,42 @@ void Kobuki::spin()
             try
             {
               // Check firmware/driver compatibility; major version must be the same
-              int version_match = firmware.check_major_version();
+              int version_match = firmware.checkMajorVersion();
               if (version_match < 0) {
-                sig_error.emit("Robot firmware is outdated and needs to be upgraded. Consult how-to on: " \
-                               "http://kobuki.yujinrobot.com/home-en/documentation/howtos/upgrading-firmware");
-                sig_error.emit("Robot firmware version is " + VersionInfo::toString(firmware.data.version)
-                             + "; latest version is " + firmware.current_version());
+                sig_error.emit("This software is incompatible with Kobuki's firmware.");
+                sig_error.emit("You need to upgrade your firmware. For more information,");
+                sig_error.emit("refer to https://kobuki.readthedocs.io/en/devel/firmware.html.");
+                sig_error.emit(" - Firmware Version: " + VersionInfo::toString(firmware.version()));
+                sig_error.emit(" - Recommended Versions: " + VersionInfo::toString(firmware.RECOMMENDED_VERSIONS));
                 shutdown_requested = true;
+                sig_error.emit("Kobuki shutting down.");
               }
               else if (version_match > 0) {
-                sig_error.emit("Driver version isn't not compatible with robot firmware. Please upgrade driver");
+                sig_error.emit("This software is incompatible with Kobuki's firmware.");
+                sig_error.emit("You need to upgrade your software. For more information,");
+                sig_error.emit("refer to https://kobuki.readthedocs.io/en/devel/firmware.html.");
+                sig_error.emit(" - Firmware Version: " + VersionInfo::toString(firmware.version()));
+                sig_error.emit(" - Recommended Versions: " + VersionInfo::toString(firmware.RECOMMENDED_VERSIONS));
                 shutdown_requested = true;
+                sig_error.emit("Kobuki shutting down.");
               }
               else
               {
                 // And minor version don't need to, but just make a suggestion
-                version_match = firmware.check_minor_version();
+                version_match = firmware.checkRecommendedVersion();
                 if (version_match < 0) {
-                  sig_warn.emit("Robot firmware is outdated; we suggest you to upgrade it " \
-                                "to benefit from the latest features. Consult how-to on: "  \
-                                "http://kobuki.yujinrobot.com/home-en/documentation/howtos/upgrading-firmware");
-                  sig_warn.emit("Robot firmware version is " + VersionInfo::toString(firmware.data.version)
-                              + "; latest version is " + firmware.current_version());
+                  sig_warn.emit("The firmware does not match any of the recommended versions for this software.");
+                  sig_warn.emit("Consider replacing the firmware. For more information,");
+                  sig_warn.emit("refer to https://kobuki.readthedocs.io/en/devel/firmware.html.");
+                  sig_warn.emit(" - Firmware Version: " + VersionInfo::toString(firmware.version()));
+                  sig_warn.emit(" - Recommended Versions: " + VersionInfo::toString(firmware.RECOMMENDED_VERSIONS));
                 }
                 else if (version_match > 0) {
-                  // Driver version is outdated; maybe we should also suggest to upgrade it, but this is not a typical case
+                  sig_warn.emit("This software is significantly behind the latest firmware.");
+                  sig_warn.emit("Please upgrade your software. For more information,");
+                  sig_warn.emit("refer to https://kobuki.readthedocs.io/en/devel/firmware.html.");
+                  sig_warn.emit(" - Firmware Version: " + VersionInfo::toString(firmware.version()));
+                  sig_warn.emit(" - Recommended Versions: " + VersionInfo::toString(firmware.RECOMMENDED_VERSIONS));
                 }
               }
             }
@@ -323,10 +334,10 @@ void Kobuki::spin()
             break;
           case Header::UniqueDeviceID:
             if( !unique_device_id.deserialise(data_buffer) ) { fixPayload(data_buffer); break; }
-            sig_version_info.emit( VersionInfo( firmware.data.version, hardware.data.version
+            sig_version_info.emit( VersionInfo( firmware.version(), hardware.data.version
                 , unique_device_id.data.udid0, unique_device_id.data.udid1, unique_device_id.data.udid2 ));
             sig_info.emit("Version info - Hardware: " + VersionInfo::toString(hardware.data.version)
-                                     + ". Firmware: " + VersionInfo::toString(firmware.data.version));
+                                     + ". Firmware: " + VersionInfo::toString(firmware.version()));
             version_info_reminder = 0;
             break;
           default: // in the case of unknown or mal-formed sub-payload

@@ -35,16 +35,20 @@ namespace kobuki
 class kobuki_PUBLIC CoreSensors : public packet_handler::payloadBase
 {
 public:
-  CoreSensors() : packet_handler::payloadBase(false, 12) {};
+  CoreSensors() : packet_handler::payloadBase(false, 16) {};
 
   struct Data {
     uint16_t time_stamp;
     uint8_t bumper;
+    uint8_t wheel_drop;
+    uint8_t cliff;
     uint16_t left_encoder;
     uint16_t right_encoder;
-    uint8_t charger_status;
+	uint8_t buttons;
+    uint8_t charger;
     int16_t charger_current;
     uint16_t battery;
+    uint8_t over_current;
   } data;
 
   struct Flags {
@@ -75,6 +79,11 @@ public:
     static const uint8_t Discharging  = 0x00;
     static const uint8_t Charged      = 0x02;
     static const uint8_t Charging     = 0x06;
+
+    // wheel drop sensor
+    static const uint8_t LeftWheel_OC    = 0x01;
+    static const uint8_t RightWheel_OC   = 0x02;
+
   };
 
   bool serialise(ecl::PushAndPop<unsigned char> & byteStream);

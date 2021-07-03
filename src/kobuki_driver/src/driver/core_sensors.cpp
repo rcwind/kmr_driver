@@ -30,11 +30,15 @@ bool CoreSensors::serialise(ecl::PushAndPop<unsigned char> & byteStream)
   buildBytes(length, byteStream);
   buildBytes(data.time_stamp, byteStream);	//2
   buildBytes(data.bumper, byteStream);		//1
+  buildBytes(data.wheel_drop, byteStream);	//1
+  buildBytes(data.cliff, byteStream);		//1
   buildBytes(data.left_encoder, byteStream);	//2
   buildBytes(data.right_encoder, byteStream);	//2
-  buildBytes(data.charger_status, byteStream);		//1
+  buildBytes(data.buttons, byteStream);		//1
+  buildBytes(data.charger, byteStream);		//1
   buildBytes(data.charger_current, byteStream);		//1
   buildBytes(data.battery, byteStream);		//2
+  buildBytes(data.over_current, byteStream);	//1
 
   return true;
 }
@@ -54,11 +58,15 @@ bool CoreSensors::deserialise(ecl::PushAndPop<unsigned char> & byteStream)
 
   buildVariable(data.time_stamp, byteStream);
   buildVariable(data.bumper, byteStream);
+  buildVariable(data.wheel_drop, byteStream);
+  buildVariable(data.cliff, byteStream);
   buildVariable(data.left_encoder, byteStream);
   buildVariable(data.right_encoder, byteStream);
-  buildVariable(data.charger_status, byteStream);
+  buildVariable(data.buttons, byteStream);
+  buildVariable(data.charger, byteStream);
   buildVariable(data.charger_current, byteStream);
   buildVariable(data.battery, byteStream);
+  buildVariable(data.over_current, byteStream);
 
   return true;
 }

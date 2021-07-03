@@ -117,12 +117,7 @@ public:
   static Command GetVersionInfo();
   static Command SetVelocityControl(DiffDrive& diff_drive);
   static Command SetVelocityControl(const int16_t &speed, const int16_t &radius);
-  static Command SetControllerGain(const unsigned char &type,
-                                   const unsigned int &p_gain,
-                                   const unsigned int &i_gain,
-                                   const unsigned int &d_gain);
   static Command SetDock(const unsigned char &dock);
-  static Command GetControllerGain();
 
   Data data;
 
