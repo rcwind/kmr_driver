@@ -113,7 +113,8 @@ class kobuki_PUBLIC EventManager {
 public:
   EventManager() {
     last_state.bumper     = 0;
-    last_state.charger    = 0;
+    last_state.charger_status    = 0;
+    last_state.charger_current    = 0;
     last_state.battery    = 0;
     last_digital_input    = 0;
     last_robot_state      = RobotEvent::Unknown;

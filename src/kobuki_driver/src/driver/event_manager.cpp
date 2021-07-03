@@ -82,10 +82,10 @@ void EventManager::update(const CoreSensors::Data &new_state, const std::vector<
   // Power System Event
   // ------------
 
-  if (last_state.charger != new_state.charger)
+  if (last_state.charger_status != new_state.charger_status)
   {
-    Battery battery_new(new_state.battery, new_state.charger);
-    Battery battery_last(last_state.battery, last_state.charger);
+    Battery battery_new(new_state.battery, new_state.charger_status);
+    Battery battery_last(last_state.battery, last_state.charger_status);
 
     if (battery_last.charging_state != battery_new.charging_state)
     {
@@ -111,8 +111,8 @@ void EventManager::update(const CoreSensors::Data &new_state, const std::vector<
 
   if (last_state.battery > new_state.battery)
   {
-    Battery battery_new(new_state.battery, new_state.charger);
-    Battery battery_last(last_state.battery, last_state.charger);
+    Battery battery_new(new_state.battery, new_state.charger_status);
+    Battery battery_last(last_state.battery, last_state.charger_status);
 
     if (battery_last.level() != battery_new.level())
     {

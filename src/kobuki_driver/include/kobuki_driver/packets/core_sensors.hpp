@@ -35,14 +35,15 @@ namespace kobuki
 class kobuki_PUBLIC CoreSensors : public packet_handler::payloadBase
 {
 public:
-  CoreSensors() : packet_handler::payloadBase(false, 10) {};
+  CoreSensors() : packet_handler::payloadBase(false, 12) {};
 
   struct Data {
     uint16_t time_stamp;
     uint8_t bumper;
     uint16_t left_encoder;
     uint16_t right_encoder;
-    uint8_t charger;
+    uint8_t charger_status;
+    int16_t charger_current;
     uint16_t battery;
   } data;
 

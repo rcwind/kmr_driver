@@ -121,7 +121,7 @@ public:
   ecl::Angle<double> getHeading() const;
   double getAngularVelocity() const;
   VersionInfo versionInfo() const { return VersionInfo(firmware.data.version, hardware.data.version, unique_device_id.data.udid0, unique_device_id.data.udid1, unique_device_id.data.udid2); }
-  Battery batteryStatus() const { return Battery(core_sensors.data.battery, core_sensors.data.charger); }
+  Battery batteryStatus() const { return Battery(core_sensors.data.battery, core_sensors.data.charger_status); }
 
   /******************************************
   ** Getters - Raw Data Api
