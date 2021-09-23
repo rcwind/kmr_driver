@@ -67,7 +67,7 @@ public:
   {
     Data()
       : command(BaseControl), speed(0), radius(0), request_flags(0), gp_out(0x00f0) // set all the power pins high, others low.
-      , type(0), p_gain(1000), i_gain(1000), d_gain(1000)
+      , dock(3)
     {
     }
 
@@ -98,11 +98,8 @@ public:
     // 0x0f00 - led array (red1, green1, red2, green2) ( 0x0100, 0x0200, 0x0400, 0x0800)
     uint16_t gp_out;
 
-    // SetControllerGain
-    unsigned char type;
-    unsigned int p_gain;
-    unsigned int i_gain;
-    unsigned int d_gain;
+    // dock
+    unsigned char dock;
 
     // SetControllerGain
     unsigned char reserved;

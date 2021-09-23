@@ -176,7 +176,7 @@ Command Command::SetVelocityControl(const int16_t &speed, const int16_t &radius)
 Command Command::SetDock(const unsigned char &dock)
 {
   Command outgoing;
-  outgoing.data.type = dock;
+  outgoing.data.dock = dock;
   outgoing.data.command = Command::Dock;
   return outgoing;
 }
@@ -240,6 +240,11 @@ bool Command::serialise(ecl::PushAndPop<unsigned char> & byteStream)
       buildBytes(data.gp_out, byteStream);
       break;
     }
+    case Dock:
+      buildBytes(cmd, byteStream);
+      buildBytes(length=1, byteStream);
+      buildBytes(data.dock, byteStream);
+      break;
     default:
       return false;
       break;
