@@ -44,12 +44,9 @@ public:
     uint8_t cliff;
     uint16_t left_encoder;
     uint16_t right_encoder;
-    char left_pwm;
-    char right_pwm;
     uint8_t buttons;
     uint8_t charger;
     uint8_t battery;
-    uint8_t over_current;
   } data;
 
   struct Flags {

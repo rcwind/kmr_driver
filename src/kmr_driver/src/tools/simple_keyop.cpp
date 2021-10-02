@@ -83,7 +83,7 @@ public:
   ecl::LegacyPose2D<double> getPose();
 
 private:
-  double vx, wz;
+  double vx, vy, wz;
   ecl::LegacyPose2D<double> pose;
   kmr::Kmr kmr;
   ecl::Slot<> slot_stream_data;
@@ -136,7 +136,7 @@ KmrManager::KmrManager() :
 
 KmrManager::~KmrManager()
 {
-  kmr.setBaseControl(0,0); // linear_velocity, angular_velocity in (m/s), (rad/s)
+  kmr.setBaseControl(0,0,0); // linear_velocity, angular_velocity in (m/s), (rad/s)
   kmr.disable();
   tcsetattr(key_file_descriptor, TCSANOW, &original_terminal_state);
 }
@@ -366,7 +366,7 @@ void KmrManager::processStreamData() {
   //std::cout << kmr.getHeading() << ", " << pose.heading() << std::endl;
   //std::cout << "[" << pose.x() << ", " << pose.y() << ", " << pose.heading() << "]" << std::endl;
 
-  kmr.setBaseControl(vx, wz);
+  kmr.setBaseControl(vx, vy, wz);
 }
 
 ecl::LegacyPose2D<double> KmrManager::getPose() {

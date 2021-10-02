@@ -31,8 +31,7 @@ DiffDrive::DiffDrive() :
   last_rad_right(0.0),
 //  v(0.0), w(0.0), // command velocities, in [m/s] and [rad/s]
   point_velocity(2,0.0), // command velocities, in [m/s] and [rad/s]
-  radius(0.0), // command velocities, in [mm] and [mm/s]
-  speed(0.0),
+  speed_x(0.0), speed_y(0.0), speed_z(0.0),
   bias(0.161), // wheelbase, wheel_to_wheel, in [m]
   //bias(0.223), // wheelbase, wheel_to_wheel, in [m]
   wheel_radius(0.085), // radius of main wheel, in [m]
@@ -126,61 +125,39 @@ void DiffDrive::getWheelJointStates(double &wheel_left_angle, double &wheel_left
   state_mutex.unlock();
 }
 
-void DiffDrive::setVelocityCommands(const double &vx, const double &wz) {
+void DiffDrive::setVelocityCommands(const double &vx, const double &vy, const double &wz) {
   // vx: in m/s
   // wz: in rad/s
   std::vector<double> cmd_vel;
   cmd_vel.push_back(vx);
+  cmd_vel.push_back(vy); // velocity y = 0
   cmd_vel.push_back(wz);
   point_velocity = cmd_vel;
 }
 
-void DiffDrive::velocityCommands(const double &vx, const double &wz) {
-  // vx: in m/s
-  // wz: in rad/s
+void DiffDrive::velocityCommands(const double &vx, const double &vy, const double &wz) {
   velocity_mutex.lock();
-  const double epsilon = 0.0001;
-
-  // Special Case #1 : Straight Run
-  if( std::abs(wz) < epsilon ) {
-    radius = 0.0f;
-    speed  = 1000.0f * vx;
-    velocity_mutex.unlock();
-    return;
-  }
-
-  radius = vx * 1000.0f / wz;
-  // Special Case #2 : Pure Rotation or Radius is less than or equal to 1.0 mm
-  if( std::abs(vx) < epsilon || std::abs(radius) <= 1.0f ) {
-    speed  = 1000.0f * bias * wz / 2.0f;
-    radius = 1.0f;
-    velocity_mutex.unlock();
-    return;
-  }
-
-  // General Case :
-  if( radius > 0.0f ) {
-    speed  = (radius + 1000.0f * bias / 2.0f) * wz;
-  } else {
-    speed  = (radius - 1000.0f * bias / 2.0f) * wz;
-  }
+  speed_x = vx * 1000;
+  speed_y = vy * 1000;
+  speed_z = wz * 1000;
   velocity_mutex.unlock();
-  return;
 }
 
-void DiffDrive::velocityCommands(const short &cmd_speed, const short &cmd_radius) {
+void DiffDrive::velocityCommands(const short &cmd_speed_x, const short &cmd_speed_y, const short &cmd_speed_z) {
   velocity_mutex.lock();
-  speed = static_cast<double>(cmd_speed);   // In [mm/s]
-  radius = static_cast<double>(cmd_radius); // In [mm]
+  speed_x = static_cast<double>(cmd_speed_x);   // In [mm/s]
+  speed_y = static_cast<double>(cmd_speed_y); // In [mm/s]
+  speed_z = static_cast<double>(cmd_speed_z); // In [0.001rad/s]
   velocity_mutex.unlock();
   return;
 }
 
 std::vector<short> DiffDrive::velocityCommands() {
   velocity_mutex.lock();
-  std::vector<short> cmd(2);
-  cmd[0] = bound(speed);  // In [mm/s]
-  cmd[1] = bound(radius); // In [mm]
+  std::vector<short> cmd(3);
+  cmd[0] = bound(speed_x);  // In [mm/s]
+  cmd[1] = bound(speed_y); // In [mm/s]
+  cmd[2] = bound(speed_z); // In [rad/s]
   velocity_mutex.unlock();
   return cmd;
 }

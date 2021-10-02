@@ -47,11 +47,11 @@ public:
   void reset();
   void getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle_rate,
                            double &wheel_right_angle, double &wheel_right_angle_rate);
-  void setVelocityCommands(const double &vx, const double &wz);
-  void velocityCommands(const double &vx, const double &wz);
-  void velocityCommands(const short &cmd_speed, const short &cmd_radius);
-  void velocityCommands(const std::vector<double> &cmd) { velocityCommands(cmd[0], cmd[1]); }
-  void velocityCommands(const std::vector<short>  &cmd) { velocityCommands(cmd[0], cmd[1]); }
+  void setVelocityCommands(const double &vx, const double &vy, const double &wz);
+  void velocityCommands(const double &vx, const double &vy, const double &wz);
+  void velocityCommands(const short &speed_x, const short &speed_y, const short &speed_z);
+  void velocityCommands(const std::vector<double> &cmd) { velocityCommands(cmd[0], cmd[1], cmd[2]); }
+  void velocityCommands(const std::vector<short>  &cmd) { velocityCommands(cmd[0], cmd[1], cmd[2]); }
 
   /*********************
   ** Command Accessors
@@ -74,8 +74,7 @@ private:
 
   //double v, w; // in [m/s] and [rad/s]
   std::vector<double> point_velocity; // (vx, wz), in [m/s] and [rad/s]
-  double radius; // in [mm]
-  double speed;  // in [mm/s]
+  double speed_x, speed_y, speed_z; // in [mm/s, mm/s, 0.001rad/s]
   double bias; //wheelbase, wheel_to_wheel, in [m]
   double wheel_radius; // in [m]
   int imu_heading_offset;

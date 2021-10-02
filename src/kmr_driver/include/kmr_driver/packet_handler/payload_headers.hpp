@@ -30,12 +30,12 @@ class Header {
 public:
   enum PayloadType {
   // Streamed payloads
-  CoreSensors = 1, DockInfraRed = 3, Inertia = 4, Cliff = 5, Current = 6,
+  CoreSensors = 1, DockInfraRed = 3, Inertia = 4, Cliff = 5,
 
   // Service Payloads
   Hardware = 10, Firmware = 11, ThreeAxisGyro = 13, Eeprom = 15, GpInput = 16, Ultrasonic = 17,
 
-  UniqueDeviceID = 19, Reserved = 20, ControllerInfo = 21
+  UniqueDeviceID = 19, Reserved = 20,
   };
 };
 

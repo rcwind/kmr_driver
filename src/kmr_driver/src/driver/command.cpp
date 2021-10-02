@@ -164,17 +164,19 @@ Command Command::SetVelocityControl(DiffDrive& diff_drive)
 {
   Command outgoing;
   std::vector<short> velocity_commands = diff_drive.velocityCommands();
-  outgoing.data.speed = velocity_commands[0];
-  outgoing.data.radius = velocity_commands[1];
+  outgoing.data.speed_x = velocity_commands[0];
+  outgoing.data.speed_y = velocity_commands[1];
+  outgoing.data.speed_z = velocity_commands[2];
   outgoing.data.command = Command::BaseControl;
   return outgoing;
 }
 
-Command Command::SetVelocityControl(const int16_t &speed, const int16_t &radius)
+Command Command::SetVelocityControl(const int16_t &speed_x, const int16_t &speed_y, const int16_t &speed_z)
 {
   Command outgoing;
-  outgoing.data.speed = speed;
-  outgoing.data.radius = radius;
+  outgoing.data.speed_x = speed_x;
+  outgoing.data.speed_y = speed_y;
+  outgoing.data.speed_z = speed_z;
   outgoing.data.command = Command::BaseControl;
   return outgoing;
 }
@@ -182,30 +184,8 @@ Command Command::SetVelocityControl(const int16_t &speed, const int16_t &radius)
 Command Command::SetDock(const unsigned char &dock)
 {
   Command outgoing;
-  outgoing.data.type = dock;
-  outgoing.data.p_gain = 0;
-  outgoing.data.i_gain = 0;
-  outgoing.data.d_gain = 0;
-  outgoing.data.command = Command::SetController;
-  return outgoing;
-}
-Command Command::SetControllerGain(const unsigned char &type, const unsigned int &p_gain,
-                                   const unsigned int &i_gain, const unsigned int &d_gain)
-{
-  Command outgoing;
-  outgoing.data.type = type;
-  outgoing.data.p_gain = p_gain;
-  outgoing.data.i_gain = i_gain;
-  outgoing.data.d_gain = d_gain;
-  outgoing.data.command = Command::SetController;
-  return outgoing;
-}
-
-Command Command::GetControllerGain()
-{
-  Command outgoing;
-  outgoing.data.command = Command::GetController;
-  outgoing.data.reserved = 0;
+  outgoing.data.dock = dock;
+  outgoing.data.command = Command::Dock;
   return outgoing;
 }
 
@@ -232,9 +212,10 @@ bool Command::serialise(ecl::PushAndPop<unsigned char> & byteStream)
   {
     case BaseControl:
       buildBytes(cmd, byteStream);
-      buildBytes(length=4, byteStream);
-      buildBytes(data.speed, byteStream);
-      buildBytes(data.radius, byteStream);
+      buildBytes(length=6, byteStream);
+      buildBytes(data.speed_x, byteStream);
+      buildBytes(data.speed_y, byteStream);
+      buildBytes(data.speed_z, byteStream);
       break;
     case Sound:
       buildBytes(cmd, byteStream);
@@ -269,18 +250,10 @@ bool Command::serialise(ecl::PushAndPop<unsigned char> & byteStream)
       buildBytes(data.gp_out, byteStream);
       break;
     }
-    case SetController:
-      buildBytes(cmd, byteStream);
-      buildBytes(length=13, byteStream);
-      buildBytes(data.type, byteStream);
-      buildBytes(data.p_gain, byteStream);
-      buildBytes(data.i_gain, byteStream);
-      buildBytes(data.d_gain, byteStream);
-      break;
-    case GetController:
+    case Dock:
       buildBytes(cmd, byteStream);
       buildBytes(length=1, byteStream);
-      buildBytes(data.reserved, byteStream);
+      buildBytes(data.dock, byteStream);
       break;
     default:
       return false;
