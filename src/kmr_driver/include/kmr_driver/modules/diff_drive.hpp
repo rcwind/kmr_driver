@@ -55,7 +55,10 @@ enum vehicle_type
 class kmr_PUBLIC DiffDrive {
 public:
   DiffDrive();
-  ~DiffDrive() { delete diff_drive_kinematics; }
+  ~DiffDrive() {
+    if (diff_drive_kinematics != nullptr)
+      delete diff_drive_kinematics;
+  }
   const ecl::DifferentialDrive::Kinematics& kinematics() { return *diff_drive_kinematics; }
   void update(const uint16_t &time_stamp,
               const uint16_t &left_front_encoder,
@@ -108,7 +111,7 @@ private:
   int imu_heading_offset;
   double tick_to_rad;
 
-  ecl::DifferentialDrive::Kinematics *diff_drive_kinematics;
+  ecl::DifferentialDrive::Kinematics *diff_drive_kinematics = nullptr;
   ecl::Mutex velocity_mutex, state_mutex;
 
   // Utility
