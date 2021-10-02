@@ -31,22 +31,28 @@ DiffDrive::DiffDrive() : wheel_bias(0.161),     // 左右轮距, wheel_to_wheel,
   imu_heading_offset = 0;
 
   point_velocity.resize(3); // command velocities, in [m/s] and [rad/s]
+
   speed_x = 0.0;
   speed_y = 0.0;
   speed_z = 0.0;
+
   last_velocity_left_front = 0.0;
   last_velocity_right_front = 0.0;
   last_velocity_left_rear = 0.0;
   last_velocity_right_rear = 0.0;
+
   last_tick_left_front = 0;
   last_tick_right_front = 0;
   last_tick_left_rear = 0;
   last_tick_right_rear = 0;
+
   last_rad_left_front = 0.0;
   last_rad_right_front = 0.0;
   last_rad_left_rear = 0.0;
   last_rad_right_rear = 0.0;
+
   tick_to_rad = (double)2 * 3.1415926 / (double)wheel_ticks;
+
   if (vehicle_type == diff2)
     diff_drive_kinematics = new ecl::DifferentialDrive::Kinematics(wheel_bias, wheel_diameter / 2.0);
   else if (vehicle_type == diff4)
