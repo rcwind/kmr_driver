@@ -32,7 +32,6 @@ enum SoundSequences
   On = 0x0, /**< Turn on **/
   Off = 0x1, /**< Turn off **/
   Recharge = 0x2, /**< Recharging starting **/
-  Button = 0x3, /**< Button pressed  **/
   Error = 0x4, /**< Error sound **/
   CleaningStart = 0x5, /**< Cleaning started **/
   CleaningEnd = 0x6, /**< Cleaning ended **/

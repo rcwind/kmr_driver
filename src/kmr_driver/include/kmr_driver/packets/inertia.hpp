@@ -34,11 +34,10 @@ namespace kmr
 class Inertia : public packet_handler::payloadBase
 {
 public:
-  Inertia() : packet_handler::payloadBase(false, 7) {};
+  Inertia() : packet_handler::payloadBase(false, 4) {};
   struct Data {
     int16_t angle;
     int16_t angle_rate;
-    unsigned char acc[3];
   } data;
 
   virtual ~Inertia() {};
@@ -49,9 +48,6 @@ public:
     buildBytes(length, byteStream);
     buildBytes(data.angle, byteStream);
     buildBytes(data.angle_rate, byteStream);
-    buildBytes(data.acc[0], byteStream);
-    buildBytes(data.acc[1], byteStream);
-    buildBytes(data.acc[2], byteStream);
     return true;
   }
 
@@ -71,9 +67,6 @@ public:
 
     buildVariable(data.angle, byteStream);
     buildVariable(data.angle_rate, byteStream);
-    buildVariable(data.acc[0], byteStream);
-    buildVariable(data.acc[1], byteStream);
-    buildVariable(data.acc[2], byteStream);
 
     //showMe();
     return constrain();

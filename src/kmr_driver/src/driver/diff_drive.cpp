@@ -22,22 +22,26 @@ namespace kmr {
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
-DiffDrive::DiffDrive() :
-  last_velocity_left(0.0),
-  last_velocity_right(0.0),
-  last_tick_left(0),
-  last_tick_right(0),
-  last_rad_left(0.0),
-  last_rad_right(0.0),
-//  v(0.0), w(0.0), // command velocities, in [m/s] and [rad/s]
-  point_velocity(2,0.0), // command velocities, in [m/s] and [rad/s]
-  speed_x(0.0), speed_y(0.0), speed_z(0.0),
-  bias(0.161), // wheelbase, wheel_to_wheel, in [m]
-  //bias(0.223), // wheelbase, wheel_to_wheel, in [m]
-  wheel_radius(0.085), // radius of main wheel, in [m]
-  //tick_to_rad(0.00317332585858586),
-  tick_to_rad(0.004197185),
-  diff_drive_kinematics(bias, wheel_radius)
+DiffDrive::DiffDrive() : last_velocity_left_front(0.0),
+                         last_velocity_right_front(0.0),
+                         last_velocity_left_rear(0.0),
+                         last_velocity_right_rear(0.0),
+                         last_tick_left_front(0),
+                         last_tick_right_front(0),
+                         last_tick_left_rear(0),
+                         last_tick_right_rear(0),
+                         last_rad_left_front(0.0),
+                         last_rad_right_front(0.0),
+                         last_rad_left_rear(0.0),
+                         last_rad_right_rear(0.0),
+                         //  v(0.0), w(0.0), // command velocities, in [m/s] and [rad/s]
+                         point_velocity(2, 0.0), // command velocities, in [m/s] and [rad/s]
+                         speed_x(0.0), speed_y(0.0), speed_z(0.0),
+                         bias(0.161), // wheelbase, wheel_to_wheel, in [m]
+                         wheel_radius(0.085), // radius of main wheel, in [m]
+                         tick_to_rad(0.004197185),
+                         vehicle_type(vehicle_type_diff2),
+                         diff_drive_kinematics(bias, wheel_radius)
 {
   (void) imu_heading_offset;
 }
@@ -48,54 +52,109 @@ DiffDrive::DiffDrive() :
  * Really horrible - could do with an overhaul.
  *
  * @param time_stamp
- * @param left_encoder
- * @param right_encoder
+ * @param left_front_encoder
+ * @param right_front_encoder
  * @param pose_update
  * @param pose_update_rates
  */
 void DiffDrive::update(const uint16_t &time_stamp,
-                       const uint16_t &left_encoder,
-                       const uint16_t &right_encoder,
+                       const uint16_t &left_front_encoder,
+                       const uint16_t &right_front_encoder,
+                       const uint16_t &left_rear_encoder,
+                       const uint16_t &right_rear_encoder,
                        ecl::LegacyPose2D<double> &pose_update,
-                       ecl::linear_algebra::Vector3d &pose_update_rates) {
+                       ecl::linear_algebra::Vector3d &pose_update_rates)
+{
   state_mutex.lock();
-  static bool init_l = false;
-  static bool init_r = false;
-  double left_diff_ticks = 0.0f;
-  double right_diff_ticks = 0.0f;
-  unsigned short curr_tick_left = 0;
-  unsigned short curr_tick_right = 0;
+  static bool init_lf = false;
+  static bool init_rf = false;
+  static bool init_lr = false;
+  static bool init_rr = false;
+  double left_front_diff_ticks = 0.0f;
+  double right_front_diff_ticks = 0.0f;
+  double left_rear_diff_ticks = 0.0f;
+  double right_rear_diff_ticks = 0.0f;
+  unsigned short curr_tick_left_front = 0;
+  unsigned short curr_tick_right_front = 0;
+  unsigned short curr_tick_left_rear = 0;
+  unsigned short curr_tick_right_rear = 0;
   unsigned short curr_timestamp = 0;
   curr_timestamp = time_stamp;
-  curr_tick_left = left_encoder;
-  if (!init_l)
+  //{{{ left front
+  curr_tick_left_front = left_front_encoder;
+  if (!init_lf)
   {
-    last_tick_left = curr_tick_left;
-    init_l = true;
+    last_tick_left_front = curr_tick_left_front;
+    init_lf = true;
   }
-  left_diff_ticks = (double)(short)((curr_tick_left - last_tick_left) & 0xffff);
-  last_tick_left = curr_tick_left;
-  last_rad_left += tick_to_rad * left_diff_ticks;
+  left_front_diff_ticks = (double)(short)((curr_tick_left_front - last_tick_left_front) & 0xffff);
+  last_tick_left_front = curr_tick_left_front;
+  last_rad_left_front += tick_to_rad * left_front_diff_ticks;
+  ///}}}
 
-  curr_tick_right = right_encoder;
-  if (!init_r)
+  //{{{ right front
+  curr_tick_right_front = right_front_encoder;
+  if (!init_rf)
   {
-    last_tick_right = curr_tick_right;
-    init_r = true;
+    last_tick_right_front = curr_tick_right_front;
+    init_rf = true;
   }
-  right_diff_ticks = (double)(short)((curr_tick_right - last_tick_right) & 0xffff);
-  last_tick_right = curr_tick_right;
-  last_rad_right += tick_to_rad * right_diff_ticks;
+  right_front_diff_ticks = (double)(short)((curr_tick_right_front - last_tick_right_front) & 0xffff);
+  last_tick_right_front = curr_tick_right_front;
+  last_rad_right_front += tick_to_rad * right_front_diff_ticks;
+  //}}}
+
+  //{{{ left rear
+  curr_tick_left_rear = left_rear_encoder;
+  if (!init_lf)
+  {
+    last_tick_left_rear = curr_tick_left_rear;
+    init_lf = true;
+  }
+  left_rear_diff_ticks = (double)(short)((curr_tick_left_rear - last_tick_left_rear) & 0xffff);
+  last_tick_left_rear = curr_tick_left_rear;
+  last_rad_left_rear += tick_to_rad * left_rear_diff_ticks;
+  ///}}}
+
+  //{{{ right rear
+  curr_tick_right_rear = right_rear_encoder;
+  if (!init_rf)
+  {
+    last_tick_right_rear = curr_tick_right_rear;
+    init_rf = true;
+  }
+  right_rear_diff_ticks = (double)(short)((curr_tick_right_rear - last_tick_right_rear) & 0xffff);
+  last_tick_right_rear = curr_tick_right_rear;
+  last_rad_right_rear += tick_to_rad * right_rear_diff_ticks;
+  //}}}
 
   // TODO this line and the last statements are really ugly; refactor, put in another place
-  pose_update = diff_drive_kinematics.forward(tick_to_rad * left_diff_ticks, tick_to_rad * right_diff_ticks);
+  if (vehicle_type == vehicle_type_diff2)
+    pose_update = diff_drive_kinematics.forward(tick_to_rad * left_front_diff_ticks, tick_to_rad * right_front_diff_ticks);
+  else if (vehicle_type == vehicle_type_diff4)
+    pose_update = diff_drive_kinematics.forward(tick_to_rad * (left_front_diff_ticks + left_rear_diff_ticks) / 2,
+                                                tick_to_rad * (right_front_diff_ticks + right_rear_diff_ticks) / 2);
+  else if (vehicle_type == vehicle_type_ackerman1)
+  {
+
+  }
+  else if (vehicle_type == vehicle_type_ackerman2)
+  {
+
+  }
+  else if (vehicle_type == vehicle_type_mecanum)
+  {
+
+  }
 
   if (curr_timestamp != last_timestamp)
   {
     last_diff_time = ((double)(short)((curr_timestamp - last_timestamp) & 0xffff)) / 1000.0f;
     last_timestamp = curr_timestamp;
-    last_velocity_left = (tick_to_rad * left_diff_ticks) / last_diff_time;
-    last_velocity_right = (tick_to_rad * right_diff_ticks) / last_diff_time;
+    last_velocity_left_front = (tick_to_rad * left_front_diff_ticks) / last_diff_time;
+    last_velocity_right_front = (tick_to_rad * right_front_diff_ticks) / last_diff_time;
+    last_velocity_left_rear = (tick_to_rad * left_rear_diff_ticks) / last_diff_time;
+    last_velocity_right_rear = (tick_to_rad * right_rear_diff_ticks) / last_diff_time;
   } else {
     // we need to set the last_velocity_xxx to zero?
   }
@@ -108,20 +167,30 @@ void DiffDrive::update(const uint16_t &time_stamp,
 
 void DiffDrive::reset() {
   state_mutex.lock();
-  last_rad_left = 0.0;
-  last_rad_right = 0.0;
-  last_velocity_left = 0.0;
-  last_velocity_right = 0.0;
+  last_rad_left_front = 0.0;
+  last_rad_right_front = 0.0;
+  last_rad_left_rear = 0.0;
+  last_rad_right_rear = 0.0;
+  last_velocity_left_front = 0.0;
+  last_velocity_right_front = 0.0;
+  last_velocity_left_rear = 0.0;
+  last_velocity_right_rear = 0.0;
   state_mutex.unlock();
 }
 
-void DiffDrive::getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle_rate,
-                                    double &wheel_right_angle, double &wheel_right_angle_rate) {
+void DiffDrive::getWheelJointStates(double &wheel_left_front_angle, double &wheel_left_front_angle_rate,
+                                    double &wheel_right_front_angle, double &wheel_right_front_angle_rate,
+                                    double &wheel_left_rear_angle, double &wheel_left_rear_angle_rate,
+                                    double &wheel_right_rear_angle, double &wheel_right_rear_angle_rate) {
   state_mutex.lock();
-  wheel_left_angle = last_rad_left;
-  wheel_right_angle = last_rad_right;
-  wheel_left_angle_rate = last_velocity_left;
-  wheel_right_angle_rate = last_velocity_right;
+  wheel_left_front_angle = last_rad_left_front;
+  wheel_right_front_angle = last_rad_right_front;
+  wheel_left_rear_angle = last_rad_left_rear;
+  wheel_right_rear_angle = last_rad_right_rear;
+  wheel_left_front_angle_rate = last_velocity_left_front;
+  wheel_right_front_angle_rate = last_velocity_right_front;
+  wheel_left_rear_angle_rate = last_velocity_left_rear;
+  wheel_right_rear_angle_rate = last_velocity_right_rear;
   state_mutex.unlock();
 }
 
@@ -157,7 +226,7 @@ std::vector<short> DiffDrive::velocityCommands() {
   std::vector<short> cmd(3);
   cmd[0] = bound(speed_x);  // In [mm/s]
   cmd[1] = bound(speed_y); // In [mm/s]
-  cmd[2] = bound(speed_z); // In [rad/s]
+  cmd[2] = bound(speed_z); // In [0.001rad/s]
   velocity_mutex.unlock();
   return cmd;
 }

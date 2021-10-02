@@ -419,10 +419,15 @@ void Kmr::resetOdometry()
   heading_offset = (static_cast<double>(inertia.data.angle) / 100.0) * ecl::pi / 180.0;
 }
 
-void Kmr::getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle_rate, double &wheel_right_angle,
-                                 double &wheel_right_angle_rate)
+void Kmr::getWheelJointStates(double &wheel_left_front_angle, double &wheel_left_front_angle_rate,
+                              double &wheel_right_front_angle, double &wheel_right_front_angle_rate,
+                              double &wheel_left_rear_angle, double &wheel_left_rear_angle_rate,
+                              double &wheel_right_rear_angle, double &wheel_right_rear_angle_rate)
 {
-  diff_drive.getWheelJointStates(wheel_left_angle, wheel_left_angle_rate, wheel_right_angle, wheel_right_angle_rate);
+  diff_drive.getWheelJointStates(wheel_left_front_angle, wheel_left_front_angle_rate,
+                                 wheel_right_front_angle, wheel_right_front_angle_rate,
+                                 wheel_left_rear_angle, wheel_left_rear_angle_rate,
+                                 wheel_right_rear_angle, wheel_right_rear_angle_rate);
 }
 
 /**
@@ -438,8 +443,12 @@ void Kmr::getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle
  */
 void Kmr::updateOdometry(ecl::LegacyPose2D<double> &pose_update, ecl::linear_algebra::Vector3d &pose_update_rates)
 {
-  diff_drive.update(core_sensors.data.time_stamp, core_sensors.data.left_encoder, core_sensors.data.right_encoder,
-                      pose_update, pose_update_rates);
+  diff_drive.update(core_sensors.data.time_stamp,
+                    core_sensors.data.left_front_encoder,
+                    core_sensors.data.right_front_encoder,
+                    core_sensors.data.left_rear_encoder,
+                    core_sensors.data.right_rear_encoder,
+                    pose_update, pose_update_rates);
 }
 
 /*****************************************************************************
@@ -489,7 +498,7 @@ void Kmr::sendBaseControlCommand()
   }
   diff_drive.velocityCommands(velocity_commands_received);
   std::vector<short> velocity_commands = diff_drive.velocityCommands();
-  // std::cout << "speed: " << velocity_commands[0] << ", radius: " << velocity_commands[1] << std::endl;
+  // std::cout << "speed: x=" << velocity_commands[0] << ", y=" << velocity_commands[1] << ", z=" << velocity_commands[2] << std::endl;
   sendCommand(Command::SetVelocityControl(velocity_commands[0], velocity_commands[1], velocity_commands[2]));
 
   //experimental; send raw control command and received command velocity
@@ -568,8 +577,6 @@ void Kmr::printSigSlotConnections() const {
   ecl::SigSlotsManager<>::printStatistics();
   std::cout << "========= String =========" << std::endl;
   ecl::SigSlotsManager<const std::string&>::printStatistics();
-  std::cout << "====== Button Event ======" << std::endl;
-  ecl::SigSlotsManager<const ButtonEvent&>::printStatistics();
   std::cout << "====== Bumper Event ======" << std::endl;
   ecl::SigSlotsManager<const BumperEvent&>::printStatistics();
   std::cout << "====== Cliff Event =======" << std::endl;

@@ -35,25 +35,24 @@ namespace kmr
 class kmr_PUBLIC CoreSensors : public packet_handler::payloadBase
 {
 public:
-  CoreSensors() : packet_handler::payloadBase(false, 15) {};
+  CoreSensors() : packet_handler::payloadBase(false, 19) {};
 
   struct Data {
     uint16_t time_stamp;
+    uint8_t vehicle;
     uint8_t bumper;
     uint8_t wheel_drop;
     uint8_t cliff;
-    uint16_t left_encoder;
-    uint16_t right_encoder;
-    uint8_t buttons;
-    uint8_t charger;
-    uint8_t battery;
+    uint8_t charger_status;
+    int16_t charger_current;
+    uint16_t battery;
+    uint16_t left_front_encoder;
+    uint16_t right_front_encoder;
+    uint16_t left_rear_encoder;
+    uint16_t right_rear_encoder;
   } data;
 
   struct Flags {
-    // buttons
-    static const uint8_t Button0 = 0x01;
-    static const uint8_t Button1 = 0x02;
-    static const uint8_t Button2 = 0x04;
 
     // bumper
     static const uint8_t LeftBumper   = 0x04;
@@ -77,10 +76,6 @@ public:
     static const uint8_t Discharging  = 0x00;
     static const uint8_t Charged      = 0x02;
     static const uint8_t Charging     = 0x06;
-
-    // wheel drop sensor
-    static const uint8_t LeftWheel_OC    = 0x01;
-    static const uint8_t RightWheel_OC   = 0x02;
 
   };
 

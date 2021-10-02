@@ -34,19 +34,40 @@ namespace kmr {
 /*****************************************************************************
 ** Interfaces
 *****************************************************************************/
+#define VEHICLE_TYPE_LIST(F) \
+	F(unkown) \
+  F(diff2) \
+  F(diff4) \
+  F(ackerman1) \
+  F(ackerman2) \
+	F(mecanum) \
+  F(dualstee) \
+  F(quadstee) \
+
+enum vehicle_type
+{
+#define DEF(a) vehicle_type_##a,
+    VEHICLE_TYPE_LIST(DEF)
+	VEHICLE_TYPE_NUM
+#undef DEF
+};
 
 class kmr_PUBLIC DiffDrive {
 public:
   DiffDrive();
   const ecl::DifferentialDrive::Kinematics& kinematics() { return diff_drive_kinematics; }
   void update(const uint16_t &time_stamp,
-              const uint16_t &left_encoder,
-              const uint16_t &right_encoder,
+              const uint16_t &left_front_encoder,
+              const uint16_t &right_front_encoder,
+              const uint16_t &left_rear_encoder,
+              const uint16_t &right_rear_encoder,
               ecl::LegacyPose2D<double> &pose_update,
               ecl::linear_algebra::Vector3d &pose_update_rates);
   void reset();
-  void getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle_rate,
-                           double &wheel_right_angle, double &wheel_right_angle_rate);
+  void getWheelJointStates(double &wheel_left_front_angle, double &wheel_left_front_angle_rate,
+                           double &wheel_right_front_angle, double &wheel_right_angle_front_rate,
+                           double &wheel_left_rear_angle, double &wheel_left_angle_rear_rate,
+                           double &wheel_right_rear_angle, double &wheel_right_angle_rear_rate);
   void setVelocityCommands(const double &vx, const double &vy, const double &wz);
   void velocityCommands(const double &vx, const double &vy, const double &wz);
   void velocityCommands(const short &speed_x, const short &speed_y, const short &speed_z);
@@ -66,17 +87,21 @@ public:
 
 private:
   unsigned short last_timestamp;
-  double last_velocity_left, last_velocity_right;
+  double last_velocity_left_front, last_velocity_right_front;
+  double last_velocity_left_rear, last_velocity_right_rear;
   double last_diff_time;
 
-  unsigned short last_tick_left, last_tick_right;
-  double last_rad_left, last_rad_right;
+  unsigned short last_tick_left_front, last_tick_right_front;
+  unsigned short last_tick_left_rear, last_tick_right_rear;
+  double last_rad_left_front, last_rad_right_front;
+  double last_rad_left_rear, last_rad_right_rear;
 
   //double v, w; // in [m/s] and [rad/s]
   std::vector<double> point_velocity; // (vx, wz), in [m/s] and [rad/s]
   double speed_x, speed_y, speed_z; // in [mm/s, mm/s, 0.001rad/s]
   double bias; //wheelbase, wheel_to_wheel, in [m]
   double wheel_radius; // in [m]
+  int vehicle_type;
   int imu_heading_offset;
   const double tick_to_rad;
 

@@ -45,7 +45,12 @@ public:
    */
   void processStreamData() {
     kmr::CoreSensors::Data data = kmr.getCoreSensorData();
-    std::cout << "Encoders [" <<  data.left_encoder << "," << data.right_encoder << "]" << std::endl;
+    std::cout << "Encoders [" <<  
+    data.left_front_encoder << "," << 
+    data.right_front_encoder << "," <<
+    data.left_rear_encoder << "," <<
+    data.right_rear_encoder << "," <<
+    "]" << std::endl;
   }
 
 private:

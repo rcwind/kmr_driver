@@ -33,19 +33,6 @@ namespace kmr {
 /*****************************************************************************
 ** Event Structures
 *****************************************************************************/
-
-struct ButtonEvent {
-  enum State {
-    Released,
-    Pressed
-  } state;
-  enum Button {
-    Button0,
-    Button1,
-    Button2
-  } button;
-};
-
 struct BumperEvent {
   enum State {
     Released,
@@ -112,11 +99,10 @@ struct RobotEvent {
 class kmr_PUBLIC EventManager {
 public:
   EventManager() {
-    last_state.buttons    = 0;
     last_state.bumper     = 0;
     last_state.cliff      = 0;
     last_state.wheel_drop = 0;
-    last_state.charger    = 0;
+    last_state.charger_status    = 0;
     last_state.battery    = 0;
     last_digital_input    = 0;
     last_robot_state      = RobotEvent::Unknown;
@@ -132,7 +118,6 @@ private:
   uint16_t          last_digital_input;
   RobotEvent::State last_robot_state;
 
-  ecl::Signal<const ButtonEvent&> sig_button_event;
   ecl::Signal<const BumperEvent&> sig_bumper_event;
   ecl::Signal<const CliffEvent&>  sig_cliff_event;
   ecl::Signal<const WheelEvent&>  sig_wheel_event;

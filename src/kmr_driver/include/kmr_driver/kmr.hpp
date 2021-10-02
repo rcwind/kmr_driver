@@ -121,7 +121,7 @@ public:
   ecl::Angle<double> getHeading() const;
   double getAngularVelocity() const;
   VersionInfo versionInfo() const { return VersionInfo(firmware.data.version, hardware.data.version, unique_device_id.data.udid0, unique_device_id.data.udid1, unique_device_id.data.udid2); }
-  Battery batteryStatus() const { return Battery(core_sensors.data.battery, core_sensors.data.charger); }
+  Battery batteryStatus() const { return Battery(core_sensors.data.battery, core_sensors.data.charger_status); }
 
   /******************************************
   ** Getters - Raw Data Api
@@ -138,8 +138,10 @@ public:
   /*********************
   ** Feedback
   **********************/
-  void getWheelJointStates(double &wheel_left_angle, double &wheel_left_angle_rate,
-                           double &wheel_right_angle, double &wheel_right_angle_rate);
+  void getWheelJointStates(double &wheel_left_front_angle, double &wheel_left_front_angle_rate,
+                           double &wheel_right_front_angle, double &wheel_right_front_angle_rate,
+                           double &wheel_left_rear_angle, double &wheel_left_rear_angle_rate,
+                           double &wheel_right_rear_angle, double &wheel_right_rear_angle_rate);
   void updateOdometry(ecl::LegacyPose2D<double> &pose_update,
                       ecl::linear_algebra::Vector3d &pose_update_rates);
 
