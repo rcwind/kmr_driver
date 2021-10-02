@@ -22,28 +22,35 @@ namespace kmr {
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
-DiffDrive::DiffDrive() : last_velocity_left_front(0.0),
-                         last_velocity_right_front(0.0),
-                         last_velocity_left_rear(0.0),
-                         last_velocity_right_rear(0.0),
-                         last_tick_left_front(0),
-                         last_tick_right_front(0),
-                         last_tick_left_rear(0),
-                         last_tick_right_rear(0),
-                         last_rad_left_front(0.0),
-                         last_rad_right_front(0.0),
-                         last_rad_left_rear(0.0),
-                         last_rad_right_rear(0.0),
-                         //  v(0.0), w(0.0), // command velocities, in [m/s] and [rad/s]
-                         point_velocity(2, 0.0), // command velocities, in [m/s] and [rad/s]
-                         speed_x(0.0), speed_y(0.0), speed_z(0.0),
-                         bias(0.161), // wheelbase, wheel_to_wheel, in [m]
-                         wheel_radius(0.085), // radius of main wheel, in [m]
-                         tick_to_rad(0.004197185),
-                         vehicle_type(vehicle_type_diff2),
-                         diff_drive_kinematics(bias, wheel_radius)
+DiffDrive::DiffDrive() : wheel_bias(0.161),     // 左右轮距, wheel_to_wheel, in [m]
+                         wheel_span(0),         // 前后轮距, wheel_to_wheel, in [m]
+                         wheel_diameter(0.085), // 轮子直径, in [m]
+                         wheel_ticks(3200),     // 轮子转一圈，编码器脉冲数
+                         vehicle_type(diff2)    // 机器人运动模型，可选为diff2,diff4,ackerman1,ackerman2,mecanum,dualstee,quadstee
 {
-  (void) imu_heading_offset;
+  imu_heading_offset = 0;
+
+  point_velocity.resize(3); // command velocities, in [m/s] and [rad/s]
+  speed_x = 0.0;
+  speed_y = 0.0;
+  speed_z = 0.0;
+  last_velocity_left_front = 0.0;
+  last_velocity_right_front = 0.0;
+  last_velocity_left_rear = 0.0;
+  last_velocity_right_rear = 0.0;
+  last_tick_left_front = 0;
+  last_tick_right_front = 0;
+  last_tick_left_rear = 0;
+  last_tick_right_rear = 0;
+  last_rad_left_front = 0.0;
+  last_rad_right_front = 0.0;
+  last_rad_left_rear = 0.0;
+  last_rad_right_rear = 0.0;
+  tick_to_rad = (double)2 * 3.1415926 / (double)wheel_ticks;
+  if (vehicle_type == diff2)
+    diff_drive_kinematics = new ecl::DifferentialDrive::Kinematics(wheel_bias, wheel_diameter / 2.0);
+  else if (vehicle_type == diff4)
+    diff_drive_kinematics = new ecl::DifferentialDrive::Kinematics((wheel_span + wheel_bias) / 2.0, wheel_diameter / 2.0);
 }
 
 /**
@@ -129,20 +136,20 @@ void DiffDrive::update(const uint16_t &time_stamp,
   //}}}
 
   // TODO this line and the last statements are really ugly; refactor, put in another place
-  if (vehicle_type == vehicle_type_diff2)
-    pose_update = diff_drive_kinematics.forward(tick_to_rad * left_front_diff_ticks, tick_to_rad * right_front_diff_ticks);
-  else if (vehicle_type == vehicle_type_diff4)
-    pose_update = diff_drive_kinematics.forward(tick_to_rad * (left_front_diff_ticks + left_rear_diff_ticks) / 2,
+  if (vehicle_type == diff2)
+    pose_update = diff_drive_kinematics->forward(tick_to_rad * left_front_diff_ticks, tick_to_rad * right_front_diff_ticks);
+  else if (vehicle_type == diff4)
+    pose_update = diff_drive_kinematics->forward(tick_to_rad * (left_front_diff_ticks + left_rear_diff_ticks) / 2,
                                                 tick_to_rad * (right_front_diff_ticks + right_rear_diff_ticks) / 2);
-  else if (vehicle_type == vehicle_type_ackerman1)
+  else if (vehicle_type == ackerman1)
   {
 
   }
-  else if (vehicle_type == vehicle_type_ackerman2)
+  else if (vehicle_type == ackerman2)
   {
 
   }
-  else if (vehicle_type == vehicle_type_mecanum)
+  else if (vehicle_type == mecanum)
   {
 
   }

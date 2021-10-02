@@ -46,7 +46,7 @@ namespace kmr {
 
 enum vehicle_type
 {
-#define DEF(a) vehicle_type_##a,
+#define DEF(a) a,
     VEHICLE_TYPE_LIST(DEF)
 	VEHICLE_TYPE_NUM
 #undef DEF
@@ -55,7 +55,8 @@ enum vehicle_type
 class kmr_PUBLIC DiffDrive {
 public:
   DiffDrive();
-  const ecl::DifferentialDrive::Kinematics& kinematics() { return diff_drive_kinematics; }
+  ~DiffDrive() { delete diff_drive_kinematics; }
+  const ecl::DifferentialDrive::Kinematics& kinematics() { return *diff_drive_kinematics; }
   void update(const uint16_t &time_stamp,
               const uint16_t &left_front_encoder,
               const uint16_t &right_front_encoder,
@@ -83,7 +84,7 @@ public:
   /*********************
   ** Property Accessors
   **********************/
-  double wheel_bias() const { return bias; }
+  // double wheel_bias() const { return bias; }
 
 private:
   unsigned short last_timestamp;
@@ -99,13 +100,15 @@ private:
   //double v, w; // in [m/s] and [rad/s]
   std::vector<double> point_velocity; // (vx, wz), in [m/s] and [rad/s]
   double speed_x, speed_y, speed_z; // in [mm/s, mm/s, 0.001rad/s]
-  double bias; //wheelbase, wheel_to_wheel, in [m]
-  double wheel_radius; // in [m]
+  double wheel_bias; //wheelbase, wheel_to_wheel, in [m]
+  double wheel_span;
+  double wheel_diameter; // in [m]
+  int wheel_ticks;
   int vehicle_type;
   int imu_heading_offset;
-  const double tick_to_rad;
+  double tick_to_rad;
 
-  ecl::DifferentialDrive::Kinematics diff_drive_kinematics;
+  ecl::DifferentialDrive::Kinematics *diff_drive_kinematics;
   ecl::Mutex velocity_mutex, state_mutex;
 
   // Utility
