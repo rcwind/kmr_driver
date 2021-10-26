@@ -455,9 +455,9 @@ void Kmr::updateOdometry(ecl::LegacyPose2D<double> &pose_update, ecl::linear_alg
  ** Commands
  *****************************************************************************/
 
-void Kmr::setLed(const enum LedNumber &number, const enum LedColour &colour)
+void Kmr::setLed(const int index, const int number, const unsigned char colour[3])
 {
-  sendCommand(Command::SetLedArray(number, colour, kmr_command.data));
+  sendCommand(Command::SetLedArray(index, number, colour, kmr_command.data));
 }
 
 void Kmr::setDigitalOutput(const DigitalOutput &digital_output) {

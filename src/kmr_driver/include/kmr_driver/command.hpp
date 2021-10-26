@@ -19,7 +19,6 @@
 
 #include <ecl/containers.hpp>
 #include "packet_handler/payload_base.hpp"
-#include "modules/led_array.hpp"
 #include "modules.hpp"
 #include "macros.hpp"
 
@@ -43,7 +42,7 @@ public:
   enum Name
   {
     BaseControl = 1, Sound = 3, SoundSequence = 4, RequestExtra = 9, ChangeFrame = 10, RequestEeprom = 11,
-    SetDigitalOut = 12, Dock = 13, 
+    SetDigitalOut = 12, Dock = 13, SetLed = 14
   };
 
   enum VersionFlag
@@ -73,6 +72,10 @@ public:
 
     Name command;
 
+    uint16_t led_start_index;
+    uint16_t led_count;
+    char led_color[3];
+
     // BaseControl
     int16_t speed_x;
     int16_t speed_y;
@@ -94,10 +97,8 @@ public:
     unsigned char frame_id;
 
     // SetDigitalOut
-    // 0x000f - digital output pins 0-3 (0x0001, 0x0002, 0x0004, 0x0008)
-    // 0x00f0 - external power breakers (3.3V, 5V, 12V 12V1A) (0x0010, 0x0020, 0x0040, 0x0080)
-    // 0x0f00 - led array (red1, green1, red2, green2) ( 0x0100, 0x0200, 0x0400, 0x0800)
-    uint16_t gp_out;
+    // 0xff - digital output pins 0-7 (0x0001, 0x0002, 0x0004, 0x0008)
+    uint8_t gp_out;
 
     // dock
     unsigned char dock;
@@ -108,7 +109,7 @@ public:
 
   virtual ~Command() {}
 
-  static Command SetLedArray(const enum LedNumber &number, const enum LedColour &colour, Command::Data &current_data);
+  static Command SetLedArray(const uint16_t start_index, const uint16_t number, const unsigned char rgb_colour[3], Command::Data &current_data);
   static Command SetDigitalOutput(const DigitalOutput &digital_output, Command::Data &current_data);
   static Command SetExternalPower(const DigitalOutput &digital_output, Command::Data &current_data);
   static Command PlaySoundSequence(const enum SoundSequences &number, Command::Data &current_data);

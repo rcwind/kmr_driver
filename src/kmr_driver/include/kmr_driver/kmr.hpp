@@ -156,7 +156,7 @@ public:
   void setMagTracker(const unsigned char &action);
   void setDock(const unsigned char &dock);
   void setBaseControl(const double &linear_velocity_x, const double &linear_velocity_y, const double &angular_velocity);
-  void setLed(const enum LedNumber &number, const enum LedColour &colour);
+  void setLed(const int index, const int number, const unsigned char colour[3]);
   void setDigitalOutput(const DigitalOutput &digital_output);
   void setExternalPower(const DigitalOutput &digital_output);
   void playSoundSequence(const enum SoundSequences &number);

@@ -28,13 +28,13 @@ namespace kmr
  */
 struct DigitalOutput {
   DigitalOutput() {
-    for ( unsigned int i = 0; i < 4; ++i ) {
+    for ( unsigned int i = 0; i < 8; ++i ) {
       values[i] = false;
       mask[i] = false;
     }
   }
-  bool values[4]; /**< Digital on or off for pins 0-3 respectively. **/
-  bool mask[4]; /**< Set indices to true to set a pin, false to ignore. **/
+  bool values[8]; /**< Digital on or off for pins 0-3 respectively. **/
+  bool mask[8]; /**< Set indices to true to set a pin, false to ignore. **/
 };
 
 

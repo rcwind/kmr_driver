@@ -30,43 +30,17 @@ const unsigned char Command::header1 = 0x55;
 ** Implementation [Command Generators]
 *****************************************************************************/
 
-/**
- * Update the gp_out bits and get ready for sending as a SetDigitalOut
- * command.
- *
- * The led arrays are obtained from the gp_outputs with a 0x0f00 mask.
- *
- * - Led1 Red    : 0x0100
- * - Led1 Green  : 0x0200
- * - Led1 Orange : 0x0300
- * - Led2 Red    : 0x0400
- * - Led2 Green  : 0x0800
- * - Led2 Orange : 0x0c00
- *
- * Important to overlay this on top of the existing gp_out configuration.
- *
- * @param number : led enumerated number
- * @param colour : green, orange, red or black
- * @param current_data : need to store settings as the gp_output command is a combo command
- * @return Command : the command to send down the wire.
- */
-Command Command::SetLedArray(const enum LedNumber &number, const enum LedColour &colour, Command::Data &current_data)
+Command Command::SetLedArray(const uint16_t start_index, const uint16_t number, const unsigned char rgb_colour[3], Command::Data &current_data)
 {
   // gp_out is 16 bits
   uint16_t value;
-  if (number == Led1)
-  {
-    value = colour; // defined with the correct bit specification.
-    current_data.gp_out = (current_data.gp_out & 0xfcff) | value; // update first
-  }
-  else
-  {
-    value = colour << 2;
-    current_data.gp_out = (current_data.gp_out & 0xf3ff) | value; // update first
-  }
   Command outgoing;
-  outgoing.data = current_data;
-  outgoing.data.command = Command::SetDigitalOut;
+  outgoing.data.led_start_index = start_index;
+  outgoing.data.led_count = number;
+  outgoing.data.led_color[0] = rgb_colour[0];
+  outgoing.data.led_color[1] = rgb_colour[1];
+  outgoing.data.led_color[2] = rgb_colour[2];
+  outgoing.data.command = Command::SetLed;
   return outgoing;
 }
 
@@ -83,9 +57,9 @@ Command Command::SetLedArray(const enum LedNumber &number, const enum LedColour 
  */
 Command Command::SetDigitalOutput(const DigitalOutput &digital_output, Command::Data &current_data)
 {
-  uint16_t values = 0x0000;
-  uint16_t clear_mask = 0xfff0;
-  for ( unsigned int i = 0; i < 4; ++i ) {
+  uint8_t values = 0x00;
+  uint8_t clear_mask = 0x00;
+  for ( unsigned int i = 0; i < 8; ++i ) {
     if ( digital_output.mask[i] ) {
       if ( digital_output.values[i] ) {
         values |= ( 1 << i );
@@ -246,8 +220,19 @@ bool Command::serialise(ecl::PushAndPop<unsigned char> & byteStream)
     case SetDigitalOut:
     { // this one controls led, external power sources, gp digitial output
       buildBytes(cmd, byteStream);
-      buildBytes(length=2, byteStream);
+      buildBytes(length=1, byteStream);
       buildBytes(data.gp_out, byteStream);
+      break;
+    }
+    case SetLed:
+    { // this one controls led, external power sources, gp digitial output
+      buildBytes(cmd, byteStream);
+      buildBytes(length=7, byteStream);
+      buildBytes(data.led_start_index, byteStream);
+      buildBytes(data.led_count, byteStream);
+      buildBytes(data.led_color[0], byteStream);
+      buildBytes(data.led_color[1], byteStream);
+      buildBytes(data.led_color[2], byteStream);
       break;
     }
     case Dock:
