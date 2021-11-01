@@ -24,6 +24,7 @@
 #include "packets/firmware.hpp"
 #include "packets/hardware.hpp"
 #include "packets/ultrasonic.hpp"
+#include "packets/steering.hpp"
 #include "packets/unique_device_id.hpp"
 #include "packets/three_axis_gyro.hpp"
 

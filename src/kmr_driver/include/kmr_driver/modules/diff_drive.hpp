@@ -60,11 +60,48 @@ public:
       delete diff_drive_kinematics;
   }
   const ecl::DifferentialDrive::Kinematics& kinematics() { return *diff_drive_kinematics; }
+
+  void update(const uint16_t &time_stamp,
+              const uint16_t &left_encoder,
+              const uint16_t &right_encoder,
+              ecl::LegacyPose2D<double> &pose_update,
+              ecl::linear_algebra::Vector3d &pose_update_rates);
+
   void update(const uint16_t &time_stamp,
               const uint16_t &left_front_encoder,
               const uint16_t &right_front_encoder,
               const uint16_t &left_rear_encoder,
               const uint16_t &right_rear_encoder,
+              ecl::LegacyPose2D<double> &pose_update,
+              ecl::linear_algebra::Vector3d &pose_update_rates);
+
+  void update(const uint16_t &time_stamp,
+              const uint16_t &left_encoder,
+              const uint16_t &right_encoder,
+              const int32_t &steering,
+              ecl::LegacyPose2D<double> &pose_update,
+              ecl::linear_algebra::Vector3d &pose_update_rates);
+
+  void update(const uint16_t &time_stamp,
+              const uint16_t &left_encoder,
+              const uint16_t &right_encoder,
+              const int16_t &left_steering,
+              const int16_t &right_steering,
+              const double &heading,
+              const double &delta_heading,
+              ecl::LegacyPose2D<double> &pose_update,
+              ecl::linear_algebra::Vector3d &pose_update_rates);
+  void update(const uint16_t &time_stamp,
+              const uint16_t &left_front_encoder,
+              const uint16_t &right_front_encoder,
+              const uint16_t &left_rear_encoder,
+              const uint16_t &right_rear_encoder,
+              const int16_t &left_front_steering,
+              const int16_t &right_front_steering,
+              const int16_t &left_rear_steering,
+              const int16_t &right_rear_steering,
+              const double &heading,
+              const double &delta_heading,
               ecl::LegacyPose2D<double> &pose_update,
               ecl::linear_algebra::Vector3d &pose_update_rates);
   void reset();
@@ -83,6 +120,11 @@ public:
   **********************/
   std::vector<short> velocityCommands(); // (speed, radius), in [mm/s] and [mm]
   std::vector<double> pointVelocity() const; // (vx, wz), in [m/s] and [rad/s]
+
+  int get_vehicle_type(void)
+  {
+    return vehicle_type;
+  }
 
   /*********************
   ** Property Accessors
@@ -108,6 +150,7 @@ private:
   double wheel_diameter; // in [m]
   int wheel_ticks;
   int vehicle_type;
+  double ackerman_heading;
   int imu_heading_offset;
   double tick_to_rad;
 

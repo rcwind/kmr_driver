@@ -247,6 +247,9 @@ void Kmr::spin()
         //std::cout << std::endl;
         switch (data_buffer[0])
         {
+          case Header::Steering:
+            if( !steering.deserialise(data_buffer) ) { fixPayload(data_buffer); break; }
+            break;
           // these come with the streamed feedback
           case Header::Ultrasonic:
             if( !ultrasonic.deserialise(data_buffer) ) { fixPayload(data_buffer); break; }
@@ -443,12 +446,65 @@ void Kmr::getWheelJointStates(double &wheel_left_front_angle, double &wheel_left
  */
 void Kmr::updateOdometry(ecl::LegacyPose2D<double> &pose_update, ecl::linear_algebra::Vector3d &pose_update_rates)
 {
-  diff_drive.update(core_sensors.data.time_stamp,
-                    core_sensors.data.left_front_encoder,
-                    core_sensors.data.right_front_encoder,
-                    core_sensors.data.left_rear_encoder,
-                    core_sensors.data.right_rear_encoder,
-                    pose_update, pose_update_rates);
+  if(diff_drive.get_vehicle_type() == diff2)
+  {
+    diff_drive.update(core_sensors.data.time_stamp,
+                      core_sensors.data.left_front_encoder,
+                      core_sensors.data.right_front_encoder,
+                      pose_update, pose_update_rates);
+  }
+  else if ((diff_drive.get_vehicle_type() == diff4) || (diff_drive.get_vehicle_type() == mecanum))
+  {
+    diff_drive.update(core_sensors.data.time_stamp,
+                      core_sensors.data.left_front_encoder,
+                      core_sensors.data.right_front_encoder,
+                      core_sensors.data.left_rear_encoder,
+                      core_sensors.data.right_rear_encoder,
+                      pose_update, pose_update_rates);
+  }
+  else if ((diff_drive.get_vehicle_type() == ackerman1) || (diff_drive.get_vehicle_type() == ackerman2))
+  {
+    //TODO: only one encoder, default two encoder
+    diff_drive.update(core_sensors.data.time_stamp,
+                      core_sensors.data.left_front_encoder,
+                      core_sensors.data.right_front_encoder,
+                      steering.data.data[0],
+                      pose_update, pose_update_rates);
+  }
+  else if(diff_drive.get_vehicle_type() == dualstee)
+  {
+    ecl::Angle<double> heading = getHeading();
+    double delta_heading;
+    static double pre_heading = 0.0;
+    delta_heading = ecl::wrap_angle(heading - pre_heading);
+
+    diff_drive.update(core_sensors.data.time_stamp,
+                      core_sensors.data.left_front_encoder, core_sensors.data.right_front_encoder,
+                      steering.data.data[0], steering.data.data[1],
+                      heading,
+                      delta_heading,
+                      pose_update, pose_update_rates);
+
+    pre_heading = heading;
+  }
+  else if(diff_drive.get_vehicle_type() == quadstee)
+  {
+    ecl::Angle<double> heading = getHeading();
+    double delta_heading;
+    static double pre_heading = 0.0;
+    delta_heading = ecl::wrap_angle(heading - pre_heading);
+
+    diff_drive.update(core_sensors.data.time_stamp,
+                      core_sensors.data.left_front_encoder, core_sensors.data.right_front_encoder,
+                      core_sensors.data.left_rear_encoder, core_sensors.data.right_rear_encoder,
+                      steering.data.data[0], steering.data.data[1],
+                      steering.data.data[2], steering.data.data[3],
+                      heading,
+                      delta_heading,
+                      pose_update, pose_update_rates);
+
+    pre_heading = heading;
+  }
 }
 
 /*****************************************************************************

@@ -199,6 +199,7 @@ private:
   ** Packet Handling
   **********************/
   CoreSensors core_sensors;
+  Steering steering;
   Ultrasonic ultrasonic;
   Inertia inertia;
   Cliff cliff;
