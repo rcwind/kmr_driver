@@ -155,6 +155,9 @@ void DiffDrive::update(const uint16_t &time_stamp,
   unsigned short curr_tick_right_rear = 0;
   unsigned short curr_timestamp = 0;
   curr_timestamp = time_stamp;
+  double d_theta;
+  double d_x;
+  double d_y;
   //{{{ left front
   curr_tick_left_front = left_front_encoder;
   if (!init_lf)
@@ -209,7 +212,12 @@ void DiffDrive::update(const uint16_t &time_stamp,
                                                 tick_to_rad * (right_front_diff_ticks + right_rear_diff_ticks) / 2);
   else if (vehicle_type == mecanum)
   {
-
+    d_x = (left_front_diff_ticks + right_front_diff_ticks + left_rear_diff_ticks + right_rear_diff_ticks) * tick_to_rad * (wheel_diameter / 2) / 4.0;
+    d_y = (-left_front_diff_ticks + right_front_diff_ticks + left_rear_diff_ticks - right_rear_diff_ticks) * tick_to_rad * (wheel_diameter / 2) / 4.0;
+    d_theta = (-left_front_diff_ticks + right_front_diff_ticks - left_rear_diff_ticks + right_rear_diff_ticks) * tick_to_rad * (wheel_diameter / 2) / (2 * (wheel_span + wheel_bias));
+    pose_update.x(d_x); // 这里不想更改函数传递的参数，直接赋值方式，node里更新pose不能用乘法，乘法适用于差速车
+    pose_update.y(d_y);
+    pose_update.heading(d_theta);
   }
 
   if (curr_timestamp != last_timestamp)

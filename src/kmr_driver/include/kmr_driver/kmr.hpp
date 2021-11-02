@@ -128,6 +128,7 @@ public:
   *******************************************/
   /* Be sure to lock/unlock the data access (lockDataAccess and unlockDataAccess)
    * around any getXXX calls - see the doxygen notes for lockDataAccess. */
+  Steering::Data getSteeringData() const { return steering.data; }
   CoreSensors::Data getCoreSensorData() const { return core_sensors.data; }
   Cliff::Data getCliffData() const { return cliff.data; }
   Inertia::Data getInertiaData() const { return inertia.data; }
