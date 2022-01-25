@@ -58,7 +58,7 @@ DiffDrive::DiffDrive() : wheel_bias(0.161),     // 左右轮距, wheel_to_wheel,
   if (vehicle_type == diff2)
     diff_drive_kinematics = new ecl::DifferentialDrive::Kinematics(wheel_bias, wheel_diameter / 2.0);
   else if (vehicle_type == diff4)
-    diff_drive_kinematics = new ecl::DifferentialDrive::Kinematics((wheel_span + wheel_bias) / 2.0, wheel_diameter / 2.0);
+    diff_drive_kinematics = new ecl::DifferentialDrive::Kinematics(wheel_span + wheel_bias, wheel_diameter / 2.0);
 }
 
 /**
