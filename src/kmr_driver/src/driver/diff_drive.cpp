@@ -89,7 +89,7 @@ void DiffDrive::update(const uint16_t &time_stamp,
   unsigned short curr_tick_right = 0;
   unsigned short curr_timestamp = 0;
   curr_timestamp = time_stamp;
-  //{{{ left 
+  //{{{ left front
   curr_tick_left = left_encoder;
   if (!init_lf)
   {
@@ -101,7 +101,7 @@ void DiffDrive::update(const uint16_t &time_stamp,
   last_rad_left_front += tick_to_rad * left_diff_ticks;
   ///}}}
 
-  //{{{ right 
+  //{{{ right front
   curr_tick_right = right_encoder;
   if (!init_rf)
   {
@@ -184,10 +184,10 @@ void DiffDrive::update(const uint16_t &time_stamp,
 
   //{{{ left rear
   curr_tick_left_rear = left_rear_encoder;
-  if (!init_lf)
+  if (!init_lr)
   {
     last_tick_left_rear = curr_tick_left_rear;
-    init_lf = true;
+    init_lr = true;
   }
   left_rear_diff_ticks = (double)(short)((curr_tick_left_rear - last_tick_left_rear) & 0xffff);
   last_tick_left_rear = curr_tick_left_rear;
@@ -196,10 +196,10 @@ void DiffDrive::update(const uint16_t &time_stamp,
 
   //{{{ right rear
   curr_tick_right_rear = right_rear_encoder;
-  if (!init_rf)
+  if (!init_rr)
   {
     last_tick_right_rear = curr_tick_right_rear;
-    init_rf = true;
+    init_rr = true;
   }
   right_rear_diff_ticks = (double)(short)((curr_tick_right_rear - last_tick_right_rear) & 0xffff);
   last_tick_right_rear = curr_tick_right_rear;
